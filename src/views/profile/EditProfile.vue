@@ -22,15 +22,27 @@
         <v-btn color="success" @click="changeRouter"> Back </v-btn>
       </v-subheader>
       <v-divider></v-divider>
-      <!-- <v-text-field outlined label="FirstName"  v-model="firstName"></v-text-field> -->
 
       <v-form @submit.prevent="update" class="mt-4">
-        <v-col class="profile_main" >
+        <v-col class="profile_main">
           <v-col class="profile_btn_flex">
-            <v-btn raised class="green" dark @click="onClickFile"
+            <v-btn
+              raised
+              class="green"
+              v-if="!imgUrl_check"
+              dark
+              @click="onClickFile"
               >Upload Image</v-btn
             >
-            <v-btn raised class="red" dark @click="deleteImage" v-if="imgUrl_check"
+            <v-btn raised class="green" v-else dark @click="onClickFile"
+              >Update Image</v-btn
+            >
+            <v-btn
+              raised
+              class="red"
+              dark
+              @click="deleteImage"
+              v-if="imgUrl_check"
               >Delete Image</v-btn
             >
           </v-col>
@@ -55,7 +67,7 @@
               :rules="[required()]"
               color="green"
               outlined
-              label="FirstName"
+              label="First Name"
               v-model="firstName"
             ></v-text-field>
           </v-col>
@@ -63,7 +75,7 @@
             <v-text-field
               color="green"
               outlined
-              label="LastName"
+              label="Last Name"
               v-model="lastName"
             ></v-text-field>
           </v-col>
@@ -103,13 +115,18 @@
         </v-col>
         <v-col class="d-flex">
           <v-col>
-            <v-text-field
+            <vue-tel-input-vuetify
+              :rules="[phone.valid]"
               type="number"
               color="green"
               outlined
-              label="Phone"
-              v-model="phoneNumber"
-            ></v-text-field>
+              :preferred-countries="['id', 'gb', 'ua', 'us']"
+              :valid-characters-only="true"
+              select-label="Code"
+              v-model.trim="phoneNumber"
+              append-icon="mdi-chevron-down"
+              @input="onInput"
+            />
           </v-col>
           <v-col>
             <v-text-field
@@ -129,7 +146,7 @@
         </v-col>
 
         <v-col>
-          <v-btn color="green" raised dark type="submit">Update</v-btn>
+          <v-btn color="green" :disabled="!phone.valid" raised :dark="phone.valid" type="submit">Update</v-btn>
         </v-col>
       </v-form>
     </v-card>
@@ -137,6 +154,7 @@
 </template>
 
 <script>
+import VueTelInputVuetify from "../../lib/vue-tel-input-vuetify.vue";
 import { required } from "../../utils/validators.js";
 import { db, users } from "../../firebase.js";
 import { doc, getDoc, updateDoc } from "@firebase/firestore";
@@ -145,7 +163,7 @@ import {
   uploadBytesResumable,
   ref,
   getDownloadURL,
-  deleteObject
+  deleteObject,
 } from "firebase/storage";
 
 export default {
@@ -159,7 +177,7 @@ export default {
       dateOfBirth: "",
       bio: null,
       imgUrl: "",
-      imgUrl_check: '',
+      imgUrl_check: "",
       image: null,
       isLoading: false,
       fileName: "",
@@ -167,12 +185,20 @@ export default {
       activePicker: null,
       date: null,
       menu: false,
+      phone: {
+        number: '',
+        valid: false,
+        country: undefined,
+      },
     };
   },
   watch: {
     menu(val) {
       val && setTimeout(() => (this.activePicker = "YEAR"));
     },
+  },
+  components: {
+    VueTelInputVuetify,
   },
   mounted() {
     this.$store.dispatch("changeTitle", "Profile");
@@ -190,22 +216,30 @@ export default {
       this.$refs.menu.save(date);
     },
 
+    onInput(formattedNumber, { number, valid, country }) {
+      this.phone.number = number.international;
+      this.phone.valid = valid;
+      this.phone.country = country && country.name;
+      this.phoneNumber = this.phone.number
+    },
     changeRouter() {
       this.$router.push("/profile");
     },
     async deleteImage() {
-      this.isLoading = true
+      this.isLoading = true;
       const storage = getStorage();
       // Create a reference to the file to delete
-      const desertRef = ref(storage,  this.imgUrl_check);
+      const desertRef = ref(storage, this.imgUrl_check);
       // Delete the file
-      await deleteObject(desertRef).then(() => {}).catch((error) => {
-        console.log(error, 'err')
-      });
-      this.imgUrl = ''
-      this.image = null
-      this.saveUrlToFireStore("")
-      this.isLoading = false
+      await deleteObject(desertRef)
+        .then(() => {})
+        .catch((error) => {
+          console.log(error, "err");
+        });
+      this.imgUrl = "";
+      this.image = null;
+      this.saveUrlToFireStore("");
+      this.isLoading = false;
     },
     async loadData() {
       try {
@@ -222,7 +256,6 @@ export default {
           this.bio = snapShot.data().bio;
           this.imgUrl = snapShot.data().imgUrl;
           this.imgUrl_check = snapShot.data().imgUrl;
-          console.log(this.imgUrl)
           this.isLoading = false;
         } else {
           console.log("no doc");
@@ -242,11 +275,13 @@ export default {
           if (this.imgUrl_check) {
             const storage = getStorage();
             // Create a reference to the file to delete
-            const desertRef = ref(storage,  this.imgUrl_check);
+            const desertRef = ref(storage, this.imgUrl_check);
             // Delete the file
-            await deleteObject(desertRef).then(() => {}).catch((error) => {
-              console.log(error, 'err')
-            });
+            await deleteObject(desertRef)
+              .then(() => {})
+              .catch((error) => {
+                console.log(error, "err");
+              });
           }
 
           try {
@@ -297,11 +332,11 @@ export default {
       }
     },
     async saveUrlToFireStore(url) {
-      if (this.phoneNumber) {
-        this.phoneNumber = this.phoneNumber.toString();
-      } else {
-        this.phoneNumber = null;
-      }
+      // if (this.phoneNumber) {
+      //   this.phoneNumber = this.phoneNumber.toString();
+      // } else {
+      //   this.phoneNumber = null;
+      // }
       const id = this.user.userId;
       let userRef = doc(users, id);
       await updateDoc(userRef, {
