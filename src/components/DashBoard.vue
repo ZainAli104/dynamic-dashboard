@@ -42,8 +42,8 @@
           <div class="route nav_user" v-bind="attrs" v-on="on">
             <v-badge dot bottom color="green" offset-y="10" offset-x="10">
               <v-avatar size="40" class="user_icon">
-                <!-- <v-img src="https://randomuser.me/api/portraits/women/81.jpg" /> -->
-                <h3 class="avatar_popup_1">{{ resolveLetter }}</h3>
+                <v-img :src="imgUrl" v-if="imgUrl" />
+                <h3 class="avatar_popup_1" v-else>{{ resolveLetter }}</h3>
               </v-avatar>
             </v-badge>
             <span class="ml-3">{{ displayName() }}</span>
@@ -52,7 +52,7 @@
         <v-card class="py-0 d-flex justify-center flex-column align-center">
           <v-avatar class="margin_top">
             <!-- <img
-              src="https://randomuser.me/api/portraits/women/81.jpg"
+              :src="imgUrl"
               alt=""
             /> -->
             <h3 class="avatar_popup_1">{{ resolveLetter }}</h3>
@@ -98,7 +98,6 @@
                 {{ resolveLetter }}
               </h4>
             </v-list-item-avatar>
-            <!-- <div class="avatar_img">{{ resolveLetter() }}</div> -->
 
             <v-list-item-content>
               <v-list-item-title>{{ displayName() }}</v-list-item-title>
@@ -136,7 +135,6 @@ export default {
         { title: "Logout", icon: "mdi-logout" },
       ],
       user: {},
-      // firstName: ''
     };
   },
   mounted() {
@@ -145,9 +143,10 @@ export default {
       const userInfo = {
       firstName: this.user.firstName,
       lastName: this.user.lastName,
+      imgUrl: this.user.imgUrl
       };
       this.$store.dispatch("changeInfo", userInfo);
-    } 
+    }
   },
   computed: {
     displayEmail() {
@@ -164,6 +163,9 @@ export default {
     },
     resolveLetter() {
       return this.$store.getters.resolveLetter
+    },
+    imgUrl() {
+      return this.$store.getters.imgUrl
     },
     routes() {
       return [

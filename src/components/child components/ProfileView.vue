@@ -117,7 +117,7 @@ export default {
           this.address = snapShot.data().address
           this.date = snapShot.data().dateOfBirth
           this.bio = snapShot.data().bio
-          this.imgUrl = snapShot.data().imgUrl;
+          this.imgUrl = snapShot.data().imgUrl
           this.isLoading = false
         }
         else {

@@ -240,6 +240,7 @@ export default {
             address: user.data().address,
             bio: user.data().bio,
             date: user.data().dateOfBirth,
+            imgUrl: user.data().imgUrl,
             phoneNumber: user.data().phoneNumber,
             userId: this.uid,
           })

@@ -332,11 +332,6 @@ export default {
       }
     },
     async saveUrlToFireStore(url) {
-      // if (this.phoneNumber) {
-      //   this.phoneNumber = this.phoneNumber.toString();
-      // } else {
-      //   this.phoneNumber = null;
-      // }
       const id = this.user.userId;
       let userRef = doc(users, id);
       await updateDoc(userRef, {
@@ -359,12 +354,14 @@ export default {
           address: this.address,
           date: this.date,
           bio: this.bio,
+          imgUrl: url,
           userId: this.user.userId,
         })
       );
       let userInfo = {
         firstName: this.firstName,
         lastName: this.lastName,
+        imgUrl: url
       };
       this.$store.dispatch("changeInfo", userInfo);
       this.$router.push("/profile");

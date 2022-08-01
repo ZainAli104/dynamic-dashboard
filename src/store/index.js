@@ -8,7 +8,8 @@ export default new Vuex.Store({
     title: 'Dashboard',
     showLogInPopUp: false,
     firstName: '',
-    lastName: ''
+    lastName: '',
+    imgUrl: ''
   },
   getters: {
     title(state) {
@@ -29,6 +30,9 @@ export default new Vuex.Store({
       } else {
         return "_";
       }
+    },
+    imgUrl(state) {
+      return state.imgUrl
     }
   },
   mutations: {
@@ -45,6 +49,7 @@ export default new Vuex.Store({
       state.firstName = payload.firstName;
       state.lastName = payload.lastName;
       state.email = payload.email;
+      state.imgUrl = payload.imgUrl
     }
   },
   actions: {
