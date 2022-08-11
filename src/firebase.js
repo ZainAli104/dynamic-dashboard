@@ -14,7 +14,7 @@ const firebaseConfig = {
   projectId: "dynamic-dashboard-589b5",
   storageBucket: "dynamic-dashboard-589b5.appspot.com",
   messagingSenderId: "55435738790",
-  appId: "1:55435738790:web:00873afd166fe4864e3e67",
+  appId: "1:55435738790:web:00873afd166fe4864e3e67"
 };
 
 const app = initializeApp(firebaseConfig);
