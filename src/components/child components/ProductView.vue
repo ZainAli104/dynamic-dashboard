@@ -1,22 +1,36 @@
 <template>
-  <v-card class="mx-auto pa-6" style="height: 26rem;" :loading="isLoading" max-width="700">
+  <div>
     <v-subheader class="py-0 mb-3 d-flex justify-space-between rounded-lg">
       <v-card-title style="color: green">Product Information</v-card-title>
     </v-subheader>
     <v-divider></v-divider>
-    <v-col class="d-flex mt-2" v-for="product in products" :key="product.name">
-      <v-card-text>{{ product.name }}</v-card-text>
-    </v-col>
+    <data-table
+      :headers="headers"
+      :items="products"
+      title="Nutritions"
+      showSeachBar="true"
+      showActoins="true"
+    ></data-table>
     <v-divider inset></v-divider>
-    <v-col style="height: 26rem;" class="d-flex justify-space-between">
-      <v-btn color="green" raised dark :disabled="page == 1" @click="prePage">Previous</v-btn>
-      <v-btn color="green" raised dark :disabled="page > total" @click="nextPage">Next</v-btn>
+    <v-col class="d-flex justify-space-between">
+      <v-btn color="green" raised dark :disabled="page == 1" @click="prePage"
+        >Previous</v-btn
+      >
+      <v-btn
+        color="green"
+        raised
+        dark
+        :disabled="page > total"
+        @click="nextPage"
+        >Next</v-btn
+      >
     </v-col>
-  </v-card>
+  </div>
 </template>
 
 <script>
-import { db } from '../../firebase.js';
+import DataTable from "../DataTable/DataTable2.vue";
+import { db } from "../../firebase.js";
 import {
   collection,
   getDocs,
@@ -38,12 +52,29 @@ export default {
       page: 1,
       lastVisible: "",
       firstVisible: "",
-      products: []
+      headers: [
+        {
+          text: "Dessert (100g serving)",
+          align: "start",
+          sortable: false,
+          value: "name",
+        },
+        { text: "Calories", value: "calories" },
+        { text: "Fat (g)", value: "fat" },
+        { text: "Carbs (g)", value: "carbs" },
+        { text: "Protein (g)", value: "protein" },
+        { text: "Iron (%)", value: "iron" },
+        { text: "Actions", value: "action" },
+      ],
+      products: [],
     };
+  },
+  components: {
+    DataTable,
   },
   mounted() {
     this.$store.dispatch("changeTitle", "Products");
-    this.loadData()
+    this.loadData();
   },
   methods: {
     async obtainTotalDocuments() {
@@ -54,13 +85,14 @@ export default {
       this.paginas = Math.ceil(this.total / this.limit);
     },
     async loadData() {
-      this.isLoading = true
+      this.isLoading = true;
       const first = query(
         collection(db, "products"),
         orderBy("name"),
         limit(this.limit)
       );
       await this.obtainTotalDocuments();
+
       const documentSnapshots = await getDocs(first);
       const lastVisible =
         documentSnapshots.docs[documentSnapshots.docs.length - 1] || null;
@@ -75,10 +107,10 @@ export default {
         this.products.push(obra);
         console.log(obra);
       });
-      this.isLoading = false
+      this.isLoading = false;
     },
     async nextPage() {
-      this.isLoading = true
+      this.isLoading = true;
       const next = query(
         collection(db, "products"),
         orderBy("name"),
@@ -100,10 +132,10 @@ export default {
         obra.id = doc.id;
         this.products.push(obra);
       });
-      this.isLoading = false
+      this.isLoading = false;
     },
     async prePage() {
-      this.isLoading = true
+      this.isLoading = true;
       const back = query(
         collection(db, "products"),
         orderBy("name"),
@@ -126,8 +158,8 @@ export default {
         obra.id = doc.id;
         this.products.push(obra);
       });
-      this.isLoading = false
-    }
-  }
+      this.isLoading = false;
+    },
+  },
 };
 </script>
