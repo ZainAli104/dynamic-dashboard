@@ -4,14 +4,84 @@
       <v-card-title style="color: green">Product Information</v-card-title>
     </v-subheader>
     <v-divider></v-divider>
-    <data-table
-      :headers="headers"
-      :items="products"
-      title="Nutritions"
-      showSeachBar="true"
-      showActoins="true"
-    ></data-table>
-    <v-divider inset></v-divider>
+    <v-container>
+      <v-card>
+        <v-card-title>
+          <span class="data-table__header">Products</span>
+          <v-spacer></v-spacer>
+
+          <div style="margin-right: 20px;">
+            <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              hide-details
+            ></v-text-field>
+          </div>
+
+          <slot name="title_action"></slot>
+          <template>
+            <v-btn color="primary mt-4" dark class="mb-2" elevation="6">
+              <v-icon class="v-btn__pre-icon" small>mdi-plus</v-icon>&nbsp; New
+              Item
+            </v-btn>
+            <v-btn
+              id="refresh"
+              class="refresh"
+              icon
+              style="margin-top: 5px; margin-left: 10px"
+            >
+              <v-icon>mdi-refresh</v-icon>
+            </v-btn>
+          </template>
+        </v-card-title>
+
+        <v-data-table
+          height="300px"
+          :loading="isLoading"
+          :search="search"
+          :headers="headers"
+          :items="products"
+          :items-per-page="5"
+          class="elevation-1"
+          hide-default-footer
+        >
+          <template v-slot:footer>
+            <v-divider></v-divider>
+            <div style="display: flex; justify-content: space-around;">
+              <v-btn
+                color="primary"
+                class="ma-2"
+                :disabled="page == 1"
+                @click="prePage"
+              >
+                Previous
+              </v-btn>
+              <v-btn
+                color="primary"
+                class="ma-2"
+                :disabled="page > total"
+                @click="nextPage"
+              >
+                Next
+              </v-btn>
+            </div>
+          </template>
+          <template v-slot:item.action="{ item }">
+            <slot name="add_action"></slot>
+
+            <v-icon small class="mr-2" color="green" @click="editItem(item)">
+              mdi-pencil
+            </v-icon>
+            <v-icon small color="red" @click="deleteItem(item)">
+              mdi-delete
+            </v-icon>
+          </template>
+        </v-data-table>
+      </v-card>
+    </v-container>
+    <!-- <v-divider inset></v-divider>
     <v-col class="d-flex justify-space-between">
       <v-btn color="green" raised dark :disabled="page == 1" @click="prePage"
         >Previous</v-btn
@@ -24,12 +94,11 @@
         @click="nextPage"
         >Next</v-btn
       >
-    </v-col>
+    </v-col> -->
   </div>
 </template>
 
 <script>
-import DataTable from "../DataTable/DataTable2.vue";
 import { db } from "../../firebase.js";
 import {
   collection,
@@ -45,9 +114,10 @@ import {
 export default {
   data() {
     return {
+      search: "",
       isLoading: false,
       total: "",
-      limit: 3,
+      limit: 5,
       paginas: "",
       page: 1,
       lastVisible: "",
@@ -69,9 +139,6 @@ export default {
       products: [],
     };
   },
-  components: {
-    DataTable,
-  },
   mounted() {
     this.$store.dispatch("changeTitle", "Products");
     this.loadData();
@@ -81,7 +148,7 @@ export default {
       const totalDocs = query(collection(db, "products"));
       const documentSnapshots = await getDocs(totalDocs);
       const total = documentSnapshots.docs.length;
-      this.total = total / 3;
+      this.total = total / this.limit;
       this.paginas = Math.ceil(this.total / this.limit);
     },
     async loadData() {
@@ -105,7 +172,6 @@ export default {
         let obra = doc.data();
         obra.id = doc.id;
         this.products.push(obra);
-        console.log(obra);
       });
       this.isLoading = false;
     },
