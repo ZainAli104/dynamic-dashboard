@@ -40,7 +40,7 @@
       <v-menu nudge-right="250px">
         <template v-slot:activator="{ attrs, on }">
           <div class="route nav_user" v-bind="attrs" v-on="on">
-            <v-badge dot bottom color="green" offset-y="10" offset-x="10">
+            <v-badge dot bottom :color="$online? 'green':'red'" offset-y="10" offset-x="10">
               <v-avatar size="40" class="user_icon">
                 <v-img :src="imgUrl" v-if="imgUrl" />
                 <h3 class="avatar_popup_1" v-else>{{ resolveLetter }}</h3>
@@ -78,7 +78,7 @@
         <template v-slot:activator="{ attrs, on }">
           <span style="cursor: pointer" v-bind="attrs" v-on="on">
             <v-chip link>
-              <v-badge dot bottom color="green" offset-y="10" offset-x="6">
+              <v-badge dot bottom :color="$online? 'green':'red'" offset-y="10" offset-x="6">
                 <v-avatar size="40">
                   <!-- <v-img
                     src="https://randomuser.me/api/portraits/women/81.jpg"

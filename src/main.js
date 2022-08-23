@@ -6,9 +6,11 @@ import router from "@/router";
 import VueLazyload from "vue-lazyload";
 import { firestorePlugin } from "vuefire";
 import store from "./store";
+import VueOnlineProp from "vue-online-prop"
 
 Vue.config.productionTip = false;
 
+Vue.use(VueOnlineProp)
 Vue.use(VueLazyload);
 Vue.use(firestorePlugin);
 Vue.use(VueTelInputVuetify, {
